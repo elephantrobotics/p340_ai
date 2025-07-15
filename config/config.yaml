@@ -1,0 +1,37 @@
+# AIExam Plus Config file
+
+# AI Model API Config
+api:
+  deepseek:
+    api_key: "sk-a8eb2ffd678a48098548942efbf19eea"
+    base_url: "https://api.deepseek.com"
+    model: "deepseek-coder"
+  qwen:
+    api_key: "sk-0dfb66cee9fb48708ec6204e78e67c51"
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    model: "qwen3-235b-a22b"
+  qwen_vl:
+    api_key: "sk-0dfb66cee9fb48708ec6204e78e67c51"
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    model: "qwen-vl-max"
+
+# Path Config
+paths:
+  input:
+    images: "./data/input/images"
+  output:
+    base: "./data/output"
+    logs: "./data/output/logs"
+
+# Robot Config
+robot:
+  com_port: "COM4"
+  baudrate: 115200
+  # speed_mode: 2
+
+# Logging Config
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_rotation: "1 day"
+  max_files: 7
