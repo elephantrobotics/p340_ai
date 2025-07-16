@@ -1,7 +1,10 @@
 """
 logger.py
 
-This module provides the logging service for the whole program
+该模块提供了一个全局的日志记录功能
+
+Author: Zhu Jiahao
+Date: 2025-07-14
 """
 
 import logging
@@ -11,9 +14,7 @@ from typing import Optional
 from ..core.config import config_manager
 
 class Logger:
-    """The Logging Manager
-    
-    @TODO: Describe the specific api
+    """日志管理器
     """
 
     def __init__(self):
@@ -21,12 +22,12 @@ class Logger:
         self.setup_root_logger()
 
     def setup_root_logger(self) -> None:
-        """ Setup Root Logger
+        """ 设置根日志管理器
         """
         log_config = config_manager.get_logging_config()
         log_level = getattr(logging, log_config.get('level', 'INFO'))
 
-        # Setup root logger
+        # 初始化
         root_logger = logging.getLogger()
         root_logger.setLevel(log_level)
         root_logger.handlers.clear()
@@ -34,13 +35,13 @@ class Logger:
             log_config.get('format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         )
 
-        # Console Handler
+        # 命令行Handler
         console_handler = logging.StreamHandler()
         console_handler.setLevel(log_level)
         console_handler.setFormatter(formatter)
         root_logger.addHandler(console_handler)
 
-        # File Handler
+        # 文件Handler
         log_path = config_manager.get('paths.output.logs')
         if log_path:
             log_file = Path(log_path) / "AIExam.log"
@@ -56,22 +57,22 @@ class Logger:
             root_logger.addHandler(file_handler)
 
     def get_logger(self, name: str) -> logging.Logger:
-        """ Get the logger with the given name
+        """ 获取指定logger, 若无该logger, 则重新初始化一个
         
         Args:
-            name: the name of the logger
+            name: 名称
         """
         if name not in self._loggers:
             self._loggers[name] = logging.getLogger(name)
         return self._loggers[name]
 
     def get_module_logger(self, module_name: str) -> logging.Logger:
-        """ Get the logger with the given module
+        """ 获取指定模块的logger
 
         Args:
-            module_name: the name of the module
+            module_name: 名称
         """
         return self.get_logger(f"AIExam.{module_name}")
     
-# Global Instance
+# 全局实例
 logger_manager = Logger()

@@ -1,6 +1,6 @@
 """
 config.py
-This module provides the loading and managing of the configs
+该模块提供配置文件的加载和初始化功能
 
 Author: Zhu Jiahao
 Date: 2025-07-14
@@ -13,9 +13,8 @@ from typing import Dict, Any, Optional
 from pathlib import Path
 
 class ConfigManager:
-    """ConfigManager
+    """配置文件管理类
 
-    @TODO: Describe the detailed api of this class
     """
 
     def __init__(self, config_path="config/config.yaml"):
@@ -24,27 +23,27 @@ class ConfigManager:
         self.load_config()
 
     def load_config(self) -> None:
-        """load the config file
+        """加载配置文件
         """
         try:
-            print("Loading System Configuration files ...")
+            print("正在加载配置文件 ...")
 
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 self._config = yaml.safe_load(f)
 
-            # @TODO: process environment variables
+            # @TODO: 处理环境变量
 
-            # create the dict
+            # 创建路径
             self.create_dict()
 
 
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Configuration file not exist: {self.config_path}")
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"配置文件不存在: {self.config_path}")
         except yaml.YAMLError as e:
-            raise ValueError(f"Configuration file format error: {e}")
+            raise ValueError(f"配置文件格式错误: {e}")
 
     def create_dict(self) -> None:
-        """create the directory for the input and output data
+        """创建用于存储输入数据和输出数据的路径
         """
         paths = self._config.get('paths', {})
         for path_type, path_config in paths.items():
@@ -56,13 +55,13 @@ class ConfigManager:
                 # Path(path_config).mkdir(parents=True, exist_ok=True)
                 self.ensure_empty_dir(path_config)  
 
-        print("All directories are generated!")
+        print("所有目录都已经创建完毕!")
 
     def ensure_empty_dir(self, path_str: str) -> None:
-        """Ensure all the directories is empty
+        """确保每个路径都为空
 
         Args:
-            path_str: the specific path.
+            path_str: 具体路径
         """
         path = Path(path_str)
         
@@ -72,14 +71,14 @@ class ConfigManager:
         path.mkdir(parents=True, exist_ok=True)
 
     def get(self, key: str, default: Any = None) -> Any:
-        """Get values from nested dictionaries by dot-separated key path
+        """ 从字典中获取对应值(使用点分隔)
 
         Args:
-            key: dot-separated key path string
-            default: default value to return when path does not exist (defaults to None)
+            key: 键
+            default: 默认值
 
         Returns:
-            Found value, or default value (when path does not exist)
+            对应的存储值
         """
         keys = key.split('.')
         value = self._config
@@ -93,22 +92,22 @@ class ConfigManager:
         return value
 
     def get_api_config(self, service: str) -> Dict[str, str]:
-        """ Get API Config
+        """ 获取API配置
         """
         return self.get(f'api.{service}', {})
     
     def get_path_config(self) -> Dict[str, Any]:
-        """ Get Path Config
+        """ 获取路径配置
         """
         return self.get('paths', {})
     
     def get_robot_config(self) -> Dict[str, Any]:
-        """ Get Robot Config
+        """ 获取机器人配置
         """
         return self.get('robot', {})
     
     def get_logging_config(self) -> Dict[str, Any]:
-        """ Get Logging Config
+        """ 获取日志配置
         """
         return self.get('logging', {})
 

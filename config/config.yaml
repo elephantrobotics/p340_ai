@@ -1,6 +1,6 @@
-# AIExam Plus Config file
+# AIExam Plus 配置文件
 
-# AI Model API Config
+# AI模型API配置
 api:
   deepseek:
     api_key: "sk-a8eb2ffd678a48098548942efbf19eea"
@@ -15,7 +15,7 @@ api:
     base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
     model: "qwen-vl-max"
 
-# Path Config
+# 数据存储路径配置
 paths:
   input:
     images: "./data/input/images"
@@ -23,13 +23,13 @@ paths:
     base: "./data/output"
     logs: "./data/output/logs"
 
-# Robot Config
+# 机器人属性配置
 robot:
   com_port: "COM4"
   baudrate: 115200
   # speed_mode: 2
 
-# Logging Config
+# 日志配置
 logging:
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
