@@ -11,7 +11,7 @@ import logging
 import logging.handlers
 from pathlib import Path
 from typing import Optional
-from ..core.config import config_manager
+from .config import __config__
 
 class Logger:
     """日志管理器
@@ -24,7 +24,7 @@ class Logger:
     def setup_root_logger(self) -> None:
         """ 设置根日志管理器
         """
-        log_config = config_manager.get_logging_config()
+        log_config = __config__.get_logging_config()
         log_level = getattr(logging, log_config.get('level', 'INFO'))
 
         # 初始化
@@ -42,7 +42,7 @@ class Logger:
         root_logger.addHandler(console_handler)
 
         # 文件Handler
-        log_path = config_manager.get('paths.output.logs')
+        log_path = __config__.get('paths.output.logs')
         if log_path:
             log_file = Path(log_path) / "AIExam.log"
             file_handler = logging.handlers.TimedRotatingFileHandler(
@@ -75,4 +75,4 @@ class Logger:
         return self.get_logger(f"AIExam.{module_name}")
     
 # 全局实例
-logger_manager = Logger()
+__logger__ = Logger()

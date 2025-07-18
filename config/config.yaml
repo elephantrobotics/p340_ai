@@ -18,6 +18,7 @@ api:
 # 数据存储路径配置
 paths:
   input:
+    base: "./data/input"
     images: "./data/input/images"
   output:
     base: "./data/output"
@@ -27,7 +28,10 @@ paths:
 robot:
   com_port: "COM4"
   baudrate: 115200
-  # speed_mode: 2
+  z_up: -70
+  z_down: -73
+  speed_move: 50
+  speed_write: 30
 
 # 日志配置
 logging:
@@ -35,3 +39,7 @@ logging:
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   file_rotation: "1 day"
   max_files: 7
+
+# 外部资产配置
+assets:
+  chinese_fonts: "./assets/Chinese_strokes"
