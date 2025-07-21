@@ -115,6 +115,11 @@ class ConfigManager:
         """ 获取外部资产配置
         """
         return self.get('assets', {})
+    
+    def get_camera_config(self) -> Dict[str, Any]:
+        """ 获取相机配置
+        """
+        return self.get('camera', {})
 
 # Global instance of config manager
 __config__ = ConfigManager()
