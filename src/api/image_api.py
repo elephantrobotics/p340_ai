@@ -24,22 +24,25 @@ class OpenCVImageClient:
     """ OpenCV图像处理类
     """
     def __init__(self,
-                camera_id: int,
-                input_path: str):
+                camera_id: int):
         """
         初始化
 
         Args:
             camera_id (int): 摄像头索引
-            input_path (str): 捕获照片存储目录
         """
         self.camera_id = camera_id
-        self.input_path = input_path
         self.image_num = 0
         self.cap: Optional[cv2.VideoCapture] = None
 
-    def capture_image(self) -> None:
+    def capture_image(self, capture_path: str) -> List:
         """ 打开摄像头并捕获图像
+        
+        Args:
+            capture_path (str): 图像存储路径
+
+        Return:
+            文件列表
         """
         cv_logger.info("正在开启摄像头...")
 
@@ -51,6 +54,7 @@ class OpenCVImageClient:
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
 
+        file_list = []
         cv_logger.info("摄像头已启动, 按空格拍照, ESC结束。")
 
         while True:
@@ -74,13 +78,14 @@ class OpenCVImageClient:
                 enhanced = self.__enhance_image(rotated)
                 final = self.__process_for_a4(enhanced)
 
-                filename = os.path.join(self.input_path, f"{self.image_num}.jpg")
+                filename = os.path.join(capture_path, f"{self.image_num}.jpg")
                 cv2.imwrite(filename, final)
                 cv_logger.info(f"图片已保存: {filename}")
+                file_list.append(filename)
 
         self.cap.release()
         cv2.destroyAllWindows()
-
+        return file_list
                 
     def __enhance_image(self, image: np.ndarray) -> np.ndarray:
         """ 图像增强: 增加对比度, 突出红色

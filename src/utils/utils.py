@@ -8,6 +8,7 @@ Date: 2025-07-17
 
 import base64
 import os
+import re
 
 def encode_image_to_base64(path: str) -> str:
     """
@@ -51,3 +52,20 @@ def get_image_mime_type(path: str) -> str:
         return 'image/webp'
     else:
         raise ValueError(f"Unsupported image format: {ext}")
+
+def read_txt_file(path: str, encoding: str = "utf-8") -> str:
+    """
+    读取一个 .txt 文件，并返回其全部内容（str 格式）。
+
+    Args:
+        path (str): 文件路径
+        encoding (str): 文件编码，默认为 'utf-8'
+
+    Returns:
+        str: 文件内容
+    """
+    with open(path, "r", encoding=encoding) as f:
+        return f.read()
+
+
+# def save_units_from_text(raw: str, output_dir: str = )

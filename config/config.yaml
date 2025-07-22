@@ -27,6 +27,8 @@ paths:
   output:
     base: "./data/output"
     logs: "./data/output/logs"
+    units: "./data/output/units"
+
 
 # 机器人属性配置
 robot:
