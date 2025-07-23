@@ -35,8 +35,46 @@ class OpenCVImageClient:
         self.image_num = 0
         self.cap: Optional[cv2.VideoCapture] = None
 
-    def capture_image(self, capture_path: str) -> List:
-        """ 打开摄像头并捕获图像
+    def capture_single_image(self, capture_path: str) -> None:
+        """ 打开摄像头并捕获一张图像
+
+        Args:
+            capture_path (str): 图像存储路径
+        """
+        cv_logger.info("正在开启摄像头...")
+
+        self.cap = cv2.VideoCapture(self.camera_id)
+        if not self.cap.isOpened():
+            cv_logger.error("无法打开摄像头")
+            return
+        
+        # 设置分辨率
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+
+        cv_logger.info("摄像头已启动, 按空格拍照...")
+
+        while True:
+            ret, frame = self.cap.read()
+            if not ret:
+                cv_logger.error("摄像头获取失败")
+                break
+
+            preview = cv2.resize(frame, (0, 0), fx=0.33, fy=0.33)
+            cv2.imshow("image capture", preview)
+            key = cv2.waitKey(1)
+
+            if key == 32:     # SPACE
+                rotated = self.__rotate_image(frame, 90, True)
+                enhanced = self.__enhance_image(rotated)
+                final = self.__process_for_a4(enhanced)
+
+                cv2.imwrite(capture_path, final)
+                cv_logger.info(f"图片已保存: {capture_path}")
+                break
+
+    def capture_multi_images(self, capture_path: str) -> List:
+        """ 打开摄像头并捕获多张图像
         
         Args:
             capture_path (str): 图像存储路径
@@ -68,7 +106,7 @@ class OpenCVImageClient:
             key = cv2.waitKey(1)
 
             if key == 27:       # ESC
-                cv_logger.info("用户推出图像捕获模式")
+                cv_logger.info("用户退出图像捕获模式")
                 break
             elif key == 32:     # SPACE
                 self.image_num += 1

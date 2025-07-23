@@ -9,8 +9,8 @@ Date: 2025-07-14
 import os
 from src.api.image_api import OpenCVImageClient
 from src.api.qwen_api import QwenClient
+from src.api.deepseek_api import DeepSeekClient
 from src.api.writing_api import RobotWritingClient
-from src.utils.utils import read_txt_file
 from src.utils.config import __config__
 from src.utils.logger import __logger__
 
@@ -32,32 +32,40 @@ def main():
     # 文件路径
     INPUT_IMAGE_PATH = path_config.get("input", {}).get("images")               # 输入照片路径
     OUTPUT_LOG_PATH = path_config.get("output", {}).get("logs")                 # 输出日志路径
-    OUTPUT_UNIT_PATH = path_config.get("output", {}).get("units")               # 单元分割结果输出路径
+    # OUTPUT_UNIT_PATH = path_config.get("output", {}).get("units")               # 单元分割结果输出路径
 
+    IMAGE_FILENAME = os.path.join(INPUT_IMAGE_PATH, "raw_image.jpg")            # 原始图像文件
     OCR_FILENAME = os.path.join(OUTPUT_LOG_PATH, "ocr_result.txt")              # OCR结果文件
+    ANSWER_FILENAME = os.path.join(OUTPUT_LOG_PATH, "answer.txt")               # AI答案文件
     
 
     image_client = OpenCVImageClient(
         camera_config.get("id")
     )
 
-    # robot_writer = RobotWritingClient(
-    #     robot_config.get("com_port"),
-    #     robot_config.get("baudrate"),
-    #     robot_config.get("z_up"),
-    #     robot_config.get("z_down"),
-    #     robot_config.get("speed_move"),
-    #     robot_config.get("speed_write"),
-    #     robot_config.get("origin_x"),
-    #     robot_config.get("origin_y"),
-    #     assets_confog.get("chinese_fonts")
-    # )
+    robot_writer = RobotWritingClient(
+        robot_config.get("com_port"),
+        robot_config.get("baudrate"),
+        robot_config.get("z_up"),
+        robot_config.get("z_down"),
+        robot_config.get("speed_move"),
+        robot_config.get("speed_write"),
+        robot_config.get("origin_x"),
+        robot_config.get("origin_y"),
+        assets_confog.get("chinese_fonts")
+    )
 
     qwen_client = QwenClient(
         api_key=qwen_config.get("api_key"),
         base_url=qwen_config.get("base_url"),
         vl_model=qwen_vl_config.get("model"),
         text_model=qwen_config.get("model")
+    )
+
+    deepseek_client = DeepSeekClient(
+        api_key=deepseek_config.get("api_key"),
+        base_url=deepseek_config.get("base_url"),
+        model=deepseek_config.get("model")
     )
 
     pipeline_logger.info("=====================================================")
@@ -70,7 +78,7 @@ def main():
     # robot_writer.write_text_line("牛的", 235.55, 0, 10, 10)
     # robot_writer.calibrate_origin()
     # robot_writer.stand_by()
-    # robot_writer.write_text_line("你好, 高考试卷", 20, 10, 10, 1.1)
+    # robot_writer.write_text_line("这首词以时间变化为线索来写的。", 10, 120, 8, 1)
     # robot_writer.stand_by()
 
     # Step 1: 捕获图片
@@ -79,10 +87,7 @@ def main():
     pipeline_logger.info("=====================================================")
     pipeline_logger.info("")
 
-    image_list = image_client.capture_image(INPUT_IMAGE_PATH)
-
-
-
+    image_client.capture_single_image(IMAGE_FILENAME)           # 试卷实体 -> IMAGE
 
     # Step 2: OCR生成文本
     pipeline_logger.info("=====================================================")
@@ -90,44 +95,35 @@ def main():
     pipeline_logger.info("=====================================================")
     pipeline_logger.info("")
 
-    for index, image in enumerate(image_list):
-        pipeline_logger.info(f"正在识别, 当前页码为{index}")
-        qwen_client.ocr_image(image, OCR_FILENAME)
-
-
-
+    qwen_client.ocr_image(IMAGE_FILENAME, OCR_FILENAME)         # IMAGE -> OCR_TXT
 
     # Step 3: 文本分割
+    # pipeline_logger.info("=====================================================")
+    # pipeline_logger.info("===                Step3: Text Split              ===")
+    # pipeline_logger.info("=====================================================")
+    # pipeline_logger.info("")
+
+    # full_text = read_txt_file(OCR_FILENAME)
+    # print(qwen_client.text_split(full_text))
+
+
+    # Step 3: AI生成答案
     pipeline_logger.info("=====================================================")
-    pipeline_logger.info("===                Step3: Text Split              ===")
+    pipeline_logger.info("===            Step3: Answer Generation           ===")
     pipeline_logger.info("=====================================================")
     pipeline_logger.info("")
 
-    full_text = read_txt_file(OCR_FILENAME)
-    print(qwen_client.text_split(full_text))
+    deepseek_client.answer_reasoning_question(OCR_FILENAME, ANSWER_FILENAME)        # OCR_TXT -> ANSWER_TXT
 
-
-    # Step 4: AI生成答案
+    # Step 4: 位置映射
     pipeline_logger.info("=====================================================")
-    pipeline_logger.info("===            Step4: Answer Generation           ===")
+    pipeline_logger.info("===             Step4: Position Mapping           ===")
     pipeline_logger.info("=====================================================")
     pipeline_logger.info("")
 
-    # Step 5: 红框识别
+    # Step 5: 机械臂书写
     pipeline_logger.info("=====================================================")
-    pipeline_logger.info("===             Step5: Box Recognition            ===")
-    pipeline_logger.info("=====================================================")
-    pipeline_logger.info("")
-
-    # Step 6: 位置映射
-    pipeline_logger.info("=====================================================")
-    pipeline_logger.info("===             Step6: Position Mapping           ===")
-    pipeline_logger.info("=====================================================")
-    pipeline_logger.info("")
-
-    # Step 7: 机械臂书写
-    pipeline_logger.info("=====================================================")
-    pipeline_logger.info("===              Step7: Robot Writing             ===")
+    pipeline_logger.info("===              Step5: Robot Writing             ===")
     pipeline_logger.info("=====================================================")
     pipeline_logger.info("")
 

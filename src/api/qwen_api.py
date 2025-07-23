@@ -8,7 +8,6 @@ Date: 2025-07-15
 """
 
 import os
-import base64
 from openai import OpenAI
 from src.utils.utils import encode_image_to_base64, get_image_mime_type
 from src.utils.config import __config__
@@ -29,7 +28,7 @@ class QwenClient:
         self.client = OpenAI(api_key=api_key, base_url=base_url)
 
     def ocr_image(self, image_path: str, log_path: str, prompt: str=None) -> None:
-        """ 对图片进行OCR, 返回识别文本。
+        """ 对图片列表进行OCR, 返回并拼接成完整的文本。
         
         Args:
             image_path (str): 图片路径
