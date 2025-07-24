@@ -10,6 +10,10 @@ import base64
 import os
 import re
 
+# A4纸张尺寸 (mm)
+A4_WIDTH_MM = 210.0
+A4_HEIGHT_MM = 297.0
+
 def encode_image_to_base64(path: str) -> str:
     """
     将图像文件编码为Base64字符串
@@ -67,5 +71,3 @@ def read_txt_file(path: str, encoding: str = "utf-8") -> str:
     with open(path, "r", encoding=encoding) as f:
         return f.read()
 
-
-# def save_units_from_text(raw: str, output_dir: str = )

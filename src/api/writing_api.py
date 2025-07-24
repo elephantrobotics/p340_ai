@@ -51,8 +51,8 @@ class RobotWritingClient:
             baudrate (int): 波特率
             z_up (float): 抬笔高度
             z_down (float): 落笔高度
-            origin_x (float): 机械臂默认X坐标 (即机械臂位于A4值[0, 0]时的X坐标)
-            origin_y (float): 机械臂默认Y坐标 (即机械臂位于A4值[0, 0]时的Y坐标)
+            origin_x (float): 机械臂默认X坐标 (即机械臂位于A4纸[0, 0]时的X坐标)
+            origin_y (float): 机械臂默认Y坐标 (即机械臂位于A4纸[0, 0]时的Y坐标)
             speed_move (int): 移动画笔的速度
             speed_write (int): 写字的速度    
         """

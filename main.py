@@ -11,6 +11,7 @@ from src.api.image_api import OpenCVImageClient
 from src.api.qwen_api import QwenClient
 from src.api.deepseek_api import DeepSeekClient
 from src.api.writing_api import RobotWritingClient
+from src.utils.utils import read_txt_file
 from src.utils.config import __config__
 from src.utils.logger import __logger__
 
@@ -34,9 +35,12 @@ def main():
     OUTPUT_LOG_PATH = path_config.get("output", {}).get("logs")                 # 输出日志路径
     # OUTPUT_UNIT_PATH = path_config.get("output", {}).get("units")               # 单元分割结果输出路径
 
-    IMAGE_FILENAME = os.path.join(INPUT_IMAGE_PATH, "raw_image.jpg")            # 原始图像文件
-    OCR_FILENAME = os.path.join(OUTPUT_LOG_PATH, "ocr_result.txt")              # OCR结果文件
-    ANSWER_FILENAME = os.path.join(OUTPUT_LOG_PATH, "answer.txt")               # AI答案文件
+    IMAGE_FILENAME = os.path.join(INPUT_IMAGE_PATH, "raw_image.jpg")                    # 原始图像文件
+    OCR_FILENAME = os.path.join(OUTPUT_LOG_PATH, "ocr_result.txt")                      # OCR结果文件
+    ANSWER_FILENAME = os.path.join(OUTPUT_LOG_PATH, "answer.txt")                       # AI答案文件
+    BOX_VIZ_IMAGE_FILENAME = os.path.join(OUTPUT_LOG_PATH, "box_viz_image.png")         # 标注答题框的图片
+    PREVIEW_IMAGE_FILENAME = os.path.join(OUTPUT_LOG_PATH, "preview.png")               # 预览图
+    TASK_FILENAME = os.path.join(OUTPUT_LOG_PATH, "task.json")                          # 任务编排
     
 
     image_client = OpenCVImageClient(
@@ -72,14 +76,6 @@ def main():
     pipeline_logger.info("===               Start the Pipeline              ===")
     pipeline_logger.info("=====================================================")
     pipeline_logger.info("")
-
-    # robot_writer.write_chinese_char("你", 235.55, 0, 10)
-    # robot_writer.write_ascii_char("D", 235.55, 0, 10)
-    # robot_writer.write_text_line("牛的", 235.55, 0, 10, 10)
-    # robot_writer.calibrate_origin()
-    # robot_writer.stand_by()
-    # robot_writer.write_text_line("这首词以时间变化为线索来写的。", 10, 120, 8, 1)
-    # robot_writer.stand_by()
 
     # Step 1: 捕获图片
     pipeline_logger.info("=====================================================")
@@ -121,11 +117,25 @@ def main():
     pipeline_logger.info("=====================================================")
     pipeline_logger.info("")
 
+    answer = read_txt_file(ANSWER_FILENAME)
+    img, img_w, img_h, mm_per_pixel_x, mm_per_pixel_y, px_per_mm_y = image_client.load_image_and_get_scale(IMAGE_FILENAME)
+    box = image_client.detect_single_black_box(img, BOX_VIZ_IMAGE_FILENAME)
+    image_client.generate_writing_task(img, box, answer, mm_per_pixel_x, mm_per_pixel_y, px_per_mm_y, PREVIEW_IMAGE_FILENAME, TASK_FILENAME)
+    
+
     # Step 5: 机械臂书写
     pipeline_logger.info("=====================================================")
     pipeline_logger.info("===              Step5: Robot Writing             ===")
     pipeline_logger.info("=====================================================")
     pipeline_logger.info("")
+
+    # robot_writer.write_chinese_char("你", 235.55, 0, 10)
+    # robot_writer.write_ascii_char("D", 235.55, 0, 10)
+    # robot_writer.write_text_line("牛的", 235.55, 0, 10, 10)
+    # robot_writer.calibrate_origin()
+    # robot_writer.stand_by()
+    # robot_writer.write_text_line("这首词以时间变化为线索来写的。", 10, 120, 8, 1)
+    # robot_writer.stand_by()
 
     pipeline_logger.info("=====================================================")
     pipeline_logger.info("===               Pipeline Finished               ===")

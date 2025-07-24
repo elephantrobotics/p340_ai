@@ -36,10 +36,11 @@ class DeepSeekClient:
         question = read_txt_file(question_path)
         prompt = (
             f"你是一位经验丰富的侦探，请根据以下题目文本推理并得出合理结论。"
-            f"要求：简要说明推理过程并给出结论，总字数控制在100字以内，不得包含无关内容。\n\n"
+            f"要求：简要说明推理过程并给出结论，总字数控制在50字以内，不得包含无关内容。\n\n"
             f"{question}\n\n"
             "请开始作答："
         )
+
 
         deepseek_logger.info("Deepseek正在作答...")
         try:
