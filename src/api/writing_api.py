@@ -9,7 +9,7 @@ Date: 2025-07-18
 
 import pickle
 import time
-import math
+import json
 from pymycobot.ultraArmP340 import ultraArmP340
 from HersheyFonts import HersheyFonts
 from src.utils.config import __config__
@@ -77,35 +77,52 @@ class RobotWritingClient:
             exit()
 
         writing_logger.info("机器人正在回零...")
-        # self.ua.go_zero()
+        self.ua.go_zero()
         self.ua.set_speed_mode(2)
+        time.sleep(0.1)
+        self.stand_by()
         writing_logger.info("机器人书写服务部署完成...")
 
-    def calibrate_origin(self) -> None:
-        """
-        试卷位置校准: 
-            1. 将机械臂移动到origin_x, origin_y处
-            2. 手动将试卷左上角对齐笔尖位置
-        """
-        # self.ua.set_coords([self.origin_x, self.origin_y, self.z_up], self.speed_move)
-        writing_logger.info("开始进行位置校准, 请等待机械臂运动完毕, 并将试卷左上角对齐笔尖位置")
-        writing_logger.info("机械臂正在归位...")
-        self.__move_sync(self.origin_x, self.origin_y)
-        input("请对齐试卷，按下回车键继续...")
-        writing_logger.info("已完成校准")
+    # def calibrate_origin(self) -> None:
+    #     """
+    #     试卷位置校准: 
+    #         1. 将机械臂移动到origin_x, origin_y处
+    #         2. 手动将试卷左上角对齐笔尖位置
+    #     """
+    #     # self.ua.set_coords([self.origin_x, self.origin_y, self.z_up], self.speed_move)
+    #     writing_logger.info("开始进行位置校准, 请等待机械臂运动完毕, 并将试卷左上角对齐笔尖位置")
+    #     writing_logger.info("机械臂正在归位...")
+    #     self.__move_sync(self.origin_x, self.origin_y)
+    #     input("请对齐试卷，按下回车键继续...")
+    #     writing_logger.info("已完成校准")
         
     def stand_by(self) -> None:
         """控制机械臂回到待机位置
         """
         writing_logger.info("机械臂正在归位...")
-        self.ua.set_coords([235.55, 0, 0], self.speed_move)
+        self.ua.set_angles([90, 0, 0], self.speed_move)
+        # 控制误差在±0.1
+        while True:
+            angles = self.ua.get_angles_info()
+            if abs(angles[0] - 90) <= 0.1 and abs(angles[1]) <= 0.1 and abs(abs(angles[1]) <= 0.1):
+                break
+            time.sleep(0.02)
+        writing_logger.info("机械臂已归位")
+
+    def go_center(self) -> None:
+        """ 控制机械臂前往A4纸中心
+        """
+        writing_logger.info("机械臂正在前往纸张中心...")
+        self.ua.set_angles([0, 0, 0], self.speed_move)
+        time.sleep(0.1)
+        self.ua.set_coords([235.55, 0, self.z_up], self.speed_move)
         # 控制误差在±0.1
         while True:
             coords = self.ua.get_coords_info()
             if abs(coords[0] - 235.55) <= 0.1 and abs(coords[1]) <= 0.1:
                 break
             time.sleep(0.02)
-        writing_logger.info("机械臂已归位")
+        writing_logger.info("机械臂已到达纸张中心")
 
     def write_chinese_char(self, ch: str, center_x: float, center_y: float, height: float) -> None:
         """
@@ -259,35 +276,67 @@ class RobotWritingClient:
             offset = width * spacing_ratio
             current_a4_x_offset += offset
 
+    def load_writing_tasks(self, json_path) -> list:
+        """
+        读取写字任务 JSON 文件并返回任务列表。
 
+        Args:
+            json_path (str): JSON 文件的路径
 
+        Returns:
+            List[dict]: 写字任务的列表，每个任务是一个包含文字内容和坐标的字典
+        """
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                tasks = json.load(f)
+            writing_logger.info(f"✅ 成功读取写字任务: {json_path}")
+            return tasks
+        except FileNotFoundError:
+            writing_logger.error(f"❌ 文件未找到: {json_path}")
+            return []
+        except json.JSONDecodeError as e:
+            writing_logger.error(f"❌ JSON 解码失败: {e}")
+            return []
 
-
-    def __move_sync(self, target_coords_x: float, target_coords_y: float):
-        """ 同步控制机械臂移动 (非写字状态)
+    def __move_sync(self, target_coords_x: float, target_coords_y: float, timeout: float = 5.0):
+        """同步控制机械臂移动 (非写字状态)，带超时控制
         
         Args:
             target_coords_x (float): 目标坐标X (机械臂坐标)
             target_coords_y (float): 目标坐标Y (机械臂坐标)
+            timeout (float): 超时时间, 默认5秒
         """
         self.ua.set_coords([target_coords_x, target_coords_y, self.z_up], self.speed_move)
-        # 控制误差在±0.1
+        
+        start_time = time.time()
         while True:
+            # 检查是否超时
+            if time.time() - start_time > timeout:
+                writing_logger.error("机械臂运动存在误差, 请检查...")
+                break
+            
             coords = self.ua.get_coords_info()
             if abs(coords[0] - target_coords_x) <= 0.1 and abs(coords[1] - target_coords_y) <= 0.1:
                 break
             time.sleep(0.02)
 
-    def __write_sync(self, target_coords_x: float, target_coords_y: float):
-        """ 同步控制机械臂移动 (非写字状态)
+    def __write_sync(self, target_coords_x: float, target_coords_y: float, timeout: float = 5.0):
+        """同步控制机械臂移动 (写字状态)，带超时控制
         
         Args:
             target_coords_x (float): 目标坐标X (机械臂坐标)
             target_coords_y (float): 目标坐标Y (机械臂坐标)
+            timeout (float): 超时时间, 默认5秒
         """
         self.ua.set_coords([target_coords_x, target_coords_y, self.z_down], self.speed_write)
-        # 控制误差在±0.1
+        
+        start_time = time.time()
         while True:
+            # 检查是否超时
+            if time.time() - start_time > timeout:
+                writing_logger.error("机械臂运动存在误差, 请检查...")
+                break
+            
             coords = self.ua.get_coords_info()
             if abs(coords[0] - target_coords_x) <= 0.1 and abs(coords[1] - target_coords_y) <= 0.1:
                 break

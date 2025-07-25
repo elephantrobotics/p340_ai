@@ -120,7 +120,8 @@ def main():
     answer = read_txt_file(ANSWER_FILENAME)
     img, img_w, img_h, mm_per_pixel_x, mm_per_pixel_y, px_per_mm_y = image_client.load_image_and_get_scale(IMAGE_FILENAME)
     box = image_client.detect_single_black_box(img, BOX_VIZ_IMAGE_FILENAME)
-    image_client.generate_writing_task(img, box, answer, mm_per_pixel_x, mm_per_pixel_y, px_per_mm_y, PREVIEW_IMAGE_FILENAME, TASK_FILENAME)
+    image_client.generate_writing_task(img, box, answer, mm_per_pixel_x, mm_per_pixel_y,
+                                       px_per_mm_y, PREVIEW_IMAGE_FILENAME, TASK_FILENAME)      # ANSWER_TXT -> TASK_JSON
     
 
     # Step 5: 机械臂书写
@@ -128,6 +129,17 @@ def main():
     pipeline_logger.info("===              Step5: Robot Writing             ===")
     pipeline_logger.info("=====================================================")
     pipeline_logger.info("")
+
+    robot_writer.go_center()
+    tasks = robot_writer.load_writing_tasks(TASK_FILENAME)
+    for task in tasks:
+        robot_writer.write_text_line(
+            task.get("text"),
+            task.get("a4_x_mm"),
+            task.get("a4_y_mm"),
+            task.get("char_height_mm"),
+            task.get("char_spacing_ratio")
+        )
 
     # robot_writer.write_chinese_char("你", 235.55, 0, 10)
     # robot_writer.write_ascii_char("D", 235.55, 0, 10)

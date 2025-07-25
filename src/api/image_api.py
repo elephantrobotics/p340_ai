@@ -242,29 +242,32 @@ class OpenCVImageClient:
         box_h_mm = h * mm_per_pixel_y
         # 字号控制
         max_font_mm = min(10.0, box_h_mm, box_w_mm / len(answer) * 1.5 if answer else 10.0)
-        min_font_mm = 5.0
+        min_font_mm = 8.0
         if box_h_mm < min_font_mm: min_font_mm = box_h_mm
         # 换算回像素
-        max_font_px = max(int(max_font_mm * px_per_mm_y), 1)
+        max_font_px = max(int(max_font_mm * px_per_mm_y), 1)    
         min_font_px = max(int(min_font_mm * px_per_mm_y), 1)
         # 尝试合适的字号并自动换行
         text_box_w = int(w * 0.8)
         text_box_h = int(h * 0.95)
 
-        final_lines, final_font, line_height = [], None, 0
-        for font_px in range(max_font_px, min_font_px - 1, -1):
-            font = ImageFont.truetype(font_path, font_px)
-            lines = self.__wrap_text(answer, font, text_box_w, draw)
-            lh = font.getbbox("汉")[3] - font.getbbox("汉")[1]
-            if lh * len(lines) <= text_box_h:
-                final_lines, final_font, line_height = lines, font, lh
-                break
+        # final_lines, final_font, line_height = [], None, 0
+        # for font_px in range(max_font_px, min_font_px - 1, -1):
+        #     font = ImageFont.truetype(font_path, font_px)
+        #     lines = self.__wrap_text(answer, font, text_box_w, draw)
+        #     lh = font.getbbox("汉")[3] - font.getbbox("汉")[1]
+        #     if lh * len(lines) <= text_box_h:
+        #         final_lines, final_font, line_height = lines, font, lh
+        #         break
 
-        # 如果没找到合适字号，强行用最小字号
-        if not final_font:
-            final_font = ImageFont.truetype(font_path, min_font_px)
-            final_lines = self.__wrap_text(answer, final_font, text_box_w, draw)
-            line_height = final_font.getbbox("汉")[3] - final_font.getbbox("汉")[1]
+        # print(max_font_px, max_font_mm, line_height)
+
+        # # 如果没找到合适字号，强行用最小字号
+        # if not final_font:
+        # 使用固定字号 (不再自适应)
+        final_font = ImageFont.truetype(font_path, min_font_px)
+        final_lines = self.__wrap_text(answer, final_font, text_box_w, draw)
+        line_height = final_font.getbbox("汉")[3] - final_font.getbbox("汉")[1]
 
         # 计算文字起始位置, 实现居中排版
         # max_line_width = max(draw.textlength(line, font=final_font) for line in final_lines)
@@ -273,7 +276,7 @@ class OpenCVImageClient:
         max_line_w_px = max(draw.textbbox((0,0), line, font=final_font)[2] for line in final_lines) if final_lines else 0
         total_text_h_px = line_height * len(final_lines)
         x_start = x + (w - max_line_w_px) / 2
-        y_start = y + (h - total_text_h_px) / 2
+        y_start = y + (h - total_text_h_px) / 3
 
         # 绘制文字, 保存书写任务
         char_height_mm = (final_font.size / px_per_mm_y) * 0.8  # 估算字符高度
