@@ -414,7 +414,7 @@ class OpenCVImageClient:
 
         # 定义黑色的HSV范围
         lower_black = np.array([0, 0, 0])     
-        upper_black = np.array([180, 255, 80]) 
+        upper_black = np.array([180, 255, 100]) 
 
         # 生成黑色区域的掩膜
         mask_black = cv2.inRange(hsv, lower_black, upper_black)

@@ -9,6 +9,7 @@ Date: 2025-07-17
 import base64
 import os
 import re
+import json
 
 # A4纸张尺寸 (mm)
 A4_WIDTH_MM = 210.0
@@ -71,3 +72,51 @@ def read_txt_file(path: str, encoding: str = "utf-8") -> str:
     with open(path, "r", encoding=encoding) as f:
         return f.read()
 
+def format_text_to_json(
+    text: str,
+    output_json_path: str,
+    start_x_mm: float = 55.1,
+    start_y_mm: float = 128.34,
+    char_height_mm: float = 6.39,
+    char_spacing_ratio: float = 1.2,
+    max_chars_per_line: int = 15
+):
+    """
+    按标点优先、每15字强制换行，将文本写入 JSON 文件。
+    """
+    def split_text_by_punctuation(text, max_len):
+        pattern = re.compile(r'[^，。！？、；：,.!?;:]+[，。！？、；：,.!?;:]?')
+        chunks = pattern.findall(text)
+        
+        lines = []
+        current_line = ''
+        for chunk in chunks:
+            for ch in chunk:
+                current_line += ch
+                if ch in '，。！？、；：,.!?;:':
+                    lines.append(current_line)
+                    current_line = ''
+                elif len(current_line) >= max_len:
+                    lines.append(current_line)
+                    current_line = ''
+        if current_line:
+            lines.append(current_line)
+        return lines
+
+    lines = split_text_by_punctuation(text, max_chars_per_line)
+
+    json_data = []
+    for i, line in enumerate(lines):
+        entry = {
+            "text": line,
+            "a4_x_mm": start_x_mm,
+            "a4_y_mm": start_y_mm + i * char_height_mm,
+            "char_height_mm": char_height_mm,
+            "char_spacing_ratio": char_spacing_ratio
+        }
+        json_data.append(entry)
+
+    with open(output_json_path, "w", encoding="utf-8") as f:
+        json.dump(json_data, f, ensure_ascii=False, indent=2)
+
+    print(f"写入完成，共 {len(json_data)} 行，已保存至 {output_json_path}")
