@@ -22,8 +22,7 @@ rad.json
 TestResults.xml
 # others
 __pycache__
-temp.txt
-temp2.txt
 /data
-/assets
 /docs
+*.jpg
+*.png
