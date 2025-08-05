@@ -1,6 +1,6 @@
-# AIExam Plus 配置文件
+# P340_AI Configuration
 
-# AI模型API配置
+# AI Model API Config
 api:
   deepseek:
     api_key: 
@@ -15,11 +15,11 @@ api:
     base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
     model: "qwen-vl-max"
 
-# 相机配置
+# Camera Config
 camera:
   id: 0
 
-# 数据存储路径配置
+# Path Config
 paths:
   input:
     base: "./data/input"
@@ -28,24 +28,24 @@ paths:
     base: "./data/output"
     logs: "./data/output/logs"
 
-# 机器人属性配置
+# Robot Config
 robot:
-  com_port:                           # 端口号
-  baudrate: 115200                    # 波特率
-  z_up: -18                           # 抬笔高度 (机械臂坐标)
-  z_down: -23                         # 落笔高度 (机械臂坐标)
-  speed_move: 50                      # 移动速度
-  speed_write: 30                     # 写字速度
-  origin_x: 384.05                    # 机械臂默认X坐标 (即机械臂位于A4纸左上角时的X坐标)
-  origin_y: -105                      # 机械臂默认Y坐标 (即机械臂位于A4纸左上角时的Y坐标)
+  com_port:                           # COM port number
+  baudrate: 115200                    # Baud rate
+  z_up: -18                           # Pen up height (robot arm coordinates)
+  z_down: -23                         # Pen down height (robot arm coordinates)
+  speed_move: 50                      # Movement speed (when not writing)
+  speed_write: 30                     # Writing speed
+  origin_x: 384.05                    # Default X coordinate (robot arm position when at top-left corner of A4 paper)
+  origin_y: -105                      # Default Y coordinate (robot arm position when at top-left corner of A4 paper)
 
-# 日志配置
+# Logging Config
 logging:
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   file_rotation: "1 day"
   max_files: 7
 
-# 外部资产配置
+# Assets Config
 assets:
   chinese_fonts: "./assets/Chinese_strokes"

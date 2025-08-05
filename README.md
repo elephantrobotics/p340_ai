@@ -1,13 +1,67 @@
-# AI_Answering智能答题机器人系统
+# P340_AI Intelligent Answering Robot System
 
-AI_Answering是一个基于人工智能的智能答题机器人系统，主要应用于教育领域的自动化答题场景。系统通过摄像头捕获试卷图像，利用OCR技术识别文字内容，调用大语言模型生成答案，最后通过机械臂将答案书写到指定的答题区域。该系统能够处理多种类型的题目，包括推理题、翻译题和算数题。
+## Overview
 
-软件在整体系统中扮演核心控制角色，负责协调图像处理、AI推理和机器人控制三个主要模块，实现端到端的智能答题流程。
+P340_AI is an intelligent answering robot system that combines computer vision, AI, and robotic control. It can automatically recognize test paper content, generate answers using large language models, and write the answers onto the answer area using a robotic arm - ultraArm P340.
 
-## 启动流程
-1. 根据实际需求配置config.yaml文件。(必须项: 各模型API_KEY, 机械臂端口号, 抬笔高度和落笔高度)
-2. 在项目路径下运行。
-   ``` Bash
-   python main.py
+## Features
+- Image capture and processing
+- OCR text recognition
+- AI-powered answer generation
+- precise robotic arm writing control
+
+## Requirements
+### Hardware
+- 4K camera with stand
+- UltraArm P340 robotic arm with pen holder module
+- Soft board and pins for paper fixation
+
+### Software
+- Python 3.8+
+- Dependencies:
+    ``` Plain Text
+    Hershey_Fonts==2.1.0
+    numpy==2.3.2
+    openai==1.98.0
+    opencv_python==4.11.0.86
+    Pillow==11.3.0
+    pymycobot==3.9.9
+    PyYAML==6.0.2
+    ```
+
+## Installation
+1. Clone the repository:
+   ``` bash
+   git clone https://github.com/elephantrobotics/p340_ai.git
+   cd p340_ai
    ```
-3. 根据项目运行管线依次按照命令行提示执行各模块。
+2. Install dependencies:
+   ``` bash
+   pip install -r requirements.txt
+   ```
+3. Configure the system:
+   - Edit `config/config.yaml` with your API keys and hardware settings.
+   - Place Chinese font files in `assets/` directory.
+
+## Quick Start
+1. Set up hardware:
+   - Mount the camera above the writing area.
+   - Position the robotic arm at the bottom center.
+   - Secure answer paper on the soft board.
+2. Run the system:
+    ``` bash
+    python main.py
+    ```
+3. Follow on-screen instructions:
+   - Position the test paper when prompted.
+   - Press spacebar to capture image.
+   - The system will automatically process and write answers.
+
+## Configuration
+Key configuration options in `config/config.yaml`:
+- **API keys for DeepSeek and Qwen services**
+- Camera ID
+- Robotic arm parameters (**COM port**, speed, **writing height**)
+- File paths for input/output
+
+## [中文文档](README_zh.md)
