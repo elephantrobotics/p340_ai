@@ -3,15 +3,15 @@
 # AI模型API配置
 api:
   deepseek:
-    api_key: "sk-a8eb2ffd678a48098548942efbf19eea"
+    api_key: 
     base_url: "https://api.deepseek.com"
     model: "deepseek-coder"
   qwen:
-    api_key: "sk-0dfb66cee9fb48708ec6204e78e67c51"
+    api_key: 
     base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
     model: "qwen3-235b-a22b"
   qwen_vl:
-    api_key: "sk-0dfb66cee9fb48708ec6204e78e67c51"
+    api_key: 
     base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
     model: "qwen-vl-max"
 
@@ -27,13 +27,10 @@ paths:
   output:
     base: "./data/output"
     logs: "./data/output/logs"
-    # units: "./data/output/units"
-
-
 
 # 机器人属性配置
 robot:
-  com_port: "COM4"                    # 端口号
+  com_port:                           # 端口号
   baudrate: 115200                    # 波特率
   z_up: -18                           # 抬笔高度 (机械臂坐标)
   z_down: -23                         # 落笔高度 (机械臂坐标)
@@ -41,7 +38,6 @@ robot:
   speed_write: 30                     # 写字速度
   origin_x: 384.05                    # 机械臂默认X坐标 (即机械臂位于A4纸左上角时的X坐标)
   origin_y: -105                      # 机械臂默认Y坐标 (即机械臂位于A4纸左上角时的Y坐标)
-  # avail_width: 200                  # 机械臂可运行范围(宽度)
 
 # 日志配置
 logging:
